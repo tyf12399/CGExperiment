@@ -4,6 +4,7 @@
 #include <QWidget>
 #include <QPainter>
 #include <QPen>
+#include <QThread>
 
 class Widget : public QWidget {
     Q_OBJECT
