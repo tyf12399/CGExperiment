@@ -6,9 +6,9 @@ CGAlgorithm::CGAlgorithm() {
 QVector<QPoint> CGAlgorithm::getLinePoints(QPoint start, QPoint end, QString method) {
     QVector<QPoint> ans{};
     if (method == "dda") {
-        ans = dda(start, end);
+        ans = ddaLine(start, end);
     } else if (method == "bresenham") {
-        ans =  bresenham(start, end);
+        ans =  bresenhamLine(start, end);
     } else {
         ans.append(QPoint(0, 0));
         qDebug() << "wrong input";
@@ -16,7 +16,7 @@ QVector<QPoint> CGAlgorithm::getLinePoints(QPoint start, QPoint end, QString met
     return ans;
 }
 
-QVector<QPoint> CGAlgorithm::dda(QPoint start, QPoint end) {
+QVector<QPoint> CGAlgorithm::ddaLine(QPoint start, QPoint end) {
     QVector<QPoint> ans{};
     int x0 = start.x();
     int y0 = start.y();
@@ -42,7 +42,7 @@ QVector<QPoint> CGAlgorithm::dda(QPoint start, QPoint end) {
     }
     return ans;
 }
-QVector<QPoint> CGAlgorithm::bresenham(QPoint start, QPoint end) {
+QVector<QPoint> CGAlgorithm::bresenhamLine(QPoint start, QPoint end) {
     QVector<QPoint> ans{};
     int x0 = start.x();
     int y0 = start.y();
@@ -55,8 +55,8 @@ QVector<QPoint> CGAlgorithm::bresenham(QPoint start, QPoint end) {
     int s0 = x1 > x0 ? 1 : -1;
     int s1 = y1 > y0 ? 1 : -1;
     ans.append(QPoint(x, y));
-    bool interchange = false;	// 默认不互换 dx、dy
-    if (dy > dx) {			// 当斜率大于 1 时，dx、dy 互换
+    bool interchange = false;
+    if (dy > dx) {
         int temp = dx;
         dx = dy;
         dy = temp;
@@ -66,18 +66,73 @@ QVector<QPoint> CGAlgorithm::bresenham(QPoint start, QPoint end) {
     for(int i = 0; i < dx; i++) {
 
         if (p >= 0) {
-            if (!interchange)		// 当斜率 < 1 时，选取上下象素点
+            if (!interchange)
                 y += s1;
-            else					// 当斜率 > 1 时，选取左右象素点
+            else
                 x += s0;
             p -= 2 * dx;
         }
         if (!interchange)
-            x += s0;				// 当斜率 < 1 时，选取 x 为步长
+            x += s0;
         else
-            y += s1;				// 当斜率 > 1 时，选取 y 为步长
+            y += s1;
         p += 2 * dy;
         ans.append(QPoint(x, y));
     }
+    return ans;
+}
+
+QVector<QPoint> CGAlgorithm::getCirclePoints(QPoint center, int r, QString method) {
+    QVector<QPoint> ans{};
+    if (method == "mid-point") {
+        ans = midPointCircle(center, r);
+    } else if (method == "bresenham") {
+        ans =  bresenhamCircle(center, r);
+    } else {
+        ans.append(QPoint(0, 0));
+        qDebug() << "wrong input";
+    }
+    return ans;
+}
+
+QVector<QPoint> CGAlgorithm::midPointCircle(QPoint center, int r) {
+    QVector<QPoint> ans{};
+    int x = r;
+    int y = 0;
+    int err = 0;
+    while (x >= y) {
+        ans.append(QPoint(x, y));
+        ans.append(QPoint(x, -y));
+        ans.append(QPoint(-x, y));
+        ans.append(QPoint(-x, -y));
+        ans.append(QPoint(y, x));
+        ans.append(QPoint(y, -x));
+        ans.append(QPoint(-y, x));
+        ans.append(QPoint(-y, -x));
+
+        if (err <= 0) {
+            y += 1;
+            err += 2 * y + 1;
+        }
+
+        if (err > 0) {
+            x -= 1;
+            err -= 2 * x + 1;
+        }
+    }
+
+    for(int i = 0; i < ans.length(); i++) {
+        ans[i] += center;
+    }
+    return ans;
+}
+
+QVector<QPoint> CGAlgorithm::bresenhamCircle(QPoint center, int r) {
+    QVector<QPoint> ans{};
+    return ans;
+}
+
+QVector<QPoint> CGAlgorithm::midPointEllipse(QPoint center, int a, int b) {
+    QVector<QPoint> ans{};
     return ans;
 }

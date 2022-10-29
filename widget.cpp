@@ -27,12 +27,14 @@ void Widget::paintEvent(QPaintEvent *event) {
     painter->setBrush(*pixBrush);
 
     CGAlgorithm *cal = new CGAlgorithm();
-    QPoint *start = new QPoint(0, 0);
-    QPoint *end = new QPoint(10, -1);
-    points = cal->getLinePoints(*start, *end, "bresenham");
+//    QPoint *start = new QPoint(0, 0);
+//    QPoint *end = new QPoint(10, -1);
+//    points = cal->getLinePoints(*start, *end, "bresenham");
+    QPoint *center = new QPoint(0, 0);
+    points = cal->getCirclePoints(*center, 25, "mid-point");
     drawPixel(points, painter);
-    painter->setPen(*linePen);
-    painter->drawLine(*start * 10, *end * 10);
+//    painter->setPen(*linePen);
+//    painter->drawLine(*start * 10, *end * 10);
     painter->end();
 }
 
