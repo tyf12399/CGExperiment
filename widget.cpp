@@ -20,22 +20,42 @@ void Widget::paintEvent(QPaintEvent *event) {
 
     //    set the color of the axis
     QPen *axisPen = new QPen(QColor(0, 0, 0));
-    QPen *linePen = new QPen(QColor(255, 0, 0), 2, Qt::SolidLine, Qt::RoundCap);
+    QPen *linePen = new QPen(QColor(255, 0, 0), 2);
+    QBrush *fillBrush = new QBrush(QColor(0, 0, 0, 0));
     //    set the color of pixels on the line drawn
     QBrush* pixBrush = new QBrush(QColor(0, 255, 255));
     painter->setPen(*axisPen);
     painter->setBrush(*pixBrush);
 
+    QString shape = "Ellipse";
+
     CGAlgorithm *cal = new CGAlgorithm();
-//    QPoint *start = new QPoint(0, 0);
-//    QPoint *end = new QPoint(10, -1);
-//    points = cal->getLinePoints(*start, *end, "bresenham");
-    QPoint *center = new QPoint(0, 0);
-    points = cal->getCirclePoints(*center, 25, "mid-point");
-    drawPixel(points, painter);
-//    painter->setPen(*linePen);
-//    painter->drawLine(*start * 10, *end * 10);
-    painter->end();
+
+    if(shape == "Line") {
+        QPoint *start = new QPoint(0, 0);
+        QPoint *end = new QPoint(10, -1);
+        points = cal->getLinePoints(*start, *end, "bresenham");
+        drawPixel(points, painter);
+        painter->setPen(*linePen);
+        painter->drawLine(*start * 10, *end * 10);
+    } else if(shape == "Circle") {
+        QPoint *center = new QPoint(5, 0);
+        int r = 20;
+        points = cal->getCirclePoints(*center, r, "bresenham");
+        drawPixel(points, painter);
+        painter->setPen(*linePen);
+        painter->setBrush(*fillBrush);
+        painter->drawEllipse(*center * 10, r * 10, r * 10);
+    } else if(shape == "Ellipse") {
+        QPoint *center = new QPoint(5, 0);
+        int a = 30;
+        int b = 10;
+        points = cal->getEllipsePoints(*center, a, b);
+        drawPixel(points, painter);
+        painter->setPen(*linePen);
+        painter->setBrush(*fillBrush);
+        painter->drawEllipse(*center * 10, a * 10, b * 10);
+    }
 }
 
 void Widget::drawPixel(QVector<QPoint> pix, QPainter* painter) {

@@ -97,42 +97,131 @@ QVector<QPoint> CGAlgorithm::getCirclePoints(QPoint center, int r, QString metho
 
 QVector<QPoint> CGAlgorithm::midPointCircle(QPoint center, int r) {
     QVector<QPoint> ans{};
-    int x = r;
-    int y = 0;
-    int err = 0;
-    while (x >= y) {
+    int x = 0;
+    int y = r;
+    int d = 1.25 - r;
+    while (x <= y) {
         ans.append(QPoint(x, y));
-        ans.append(QPoint(x, -y));
-        ans.append(QPoint(-x, y));
-        ans.append(QPoint(-x, -y));
         ans.append(QPoint(y, x));
-        ans.append(QPoint(y, -x));
-        ans.append(QPoint(-y, x));
-        ans.append(QPoint(-y, -x));
 
-        if (err <= 0) {
-            y += 1;
-            err += 2 * y + 1;
+        if (d < 0) {
+            d += 2 * x + 3;
+        } else {
+            d += 2 * (x - y) + 5;
+            y -= 1;
+        }
+        x += 1;
+    }
+    ans = symmetricalOperation(ans);
+    for(int i = 0; i < ans.length(); i++) {
+        ans[i] += center;
+    }
+
+    return ans;
+}
+
+QVector<QPoint> CGAlgorithm::bresenhamCircle(QPoint center, int r) {
+    QVector<QPoint> ans{};
+    int x = 0;
+    int y = r;
+    int delta = 2 * (1 - r);
+    int delta1, delta2, direction;
+    while(y >= 0) {
+        ans.append(QPoint(x, y));
+        if(delta < 0) {
+            delta1 = 2 * (delta + y) - 1;
+            if(delta1 <= 0) {
+                direction = 1;
+            } else {
+                direction = 2;
+            }
+        } else if (delta > 0) {
+            delta2 = 2 * (delta - x) - 1;
+            if(delta2 < 0) {
+                direction = 2;
+            } else {
+                direction = 3;
+            }
+        } else {
+            direction = 2;
         }
 
-        if (err > 0) {
-            x -= 1;
-            err -= 2 * x + 1;
+        if(direction == 1) {
+            x++;
+            delta += 2 * x + 1;
+        } else if(direction == 2) {
+            x++;
+            y--;
+            delta += 2 * (x - y + 1);
+        } else if(direction == 3) {
+            y--;
+            delta += (-2 * y + 1);
         }
     }
 
+    ans = symmetricalOperation(ans);
     for(int i = 0; i < ans.length(); i++) {
         ans[i] += center;
     }
     return ans;
 }
 
-QVector<QPoint> CGAlgorithm::bresenhamCircle(QPoint center, int r) {
+QVector<QPoint> CGAlgorithm::getEllipsePoints(QPoint center, int a, int b) {
     QVector<QPoint> ans{};
+    ans = midPointEllipse(center, a, b);
     return ans;
 }
 
 QVector<QPoint> CGAlgorithm::midPointEllipse(QPoint center, int a, int b) {
     QVector<QPoint> ans{};
+    int  x, y;
+    float  p1, p2;
+    x = 0;
+    y = b;
+    p1 = b * b - a * a * b + 0.25 * a * a;
+    ans.append(QPoint(x, y));
+    while (a * a * y > b * b * x) {                //第一象限内靠近y轴内点的绘制
+        if (p1 < 0) {
+            p1 = p1 + 2 * b * b * (x + 1) + b * b;
+            x = x + 1;
+            y = y;
+        } else {
+            p1 = p1 + 2 * b * b * (x + 1) + b * b - 2 * a * a * (y - 1);
+            x = x + 1;
+            y = y - 1;
+        }
+        ans.append(QPoint(x, y));
+    }
+    p2 = 1.0 * b * b * (x + 0.5) * (x + 0.5) + 1.0 * a * a * (y - 1) * (y - 1) - 1.0 * a * a * b * b;
+    while (y > 0) {                                                //第一象限另外一区域
+        if (p2 > 0) {
+            p2 = p2 - 2 * a * a * (y - 1) + a * a;
+            y = y - 1;
+            x = x;
+        } else {
+            p2 = p2 - 2 * a * a * (y - 1) + a * a + 2 * b * b * (x + 1);
+            y = y - 1;
+            x = x + 1;
+        }
+        ans.append(QPoint(x, y));
+    }
+
+    ans = symmetricalOperation(ans);
+    for(int i = 0; i < ans.length(); i++) {
+        ans[i] += center;
+    }
     return ans;
+}
+
+QVector<QPoint> CGAlgorithm::symmetricalOperation(QVector<QPoint> points) {
+    QVector<QPoint> full{};
+    for(int i = 0; i < points.length(); i++) {
+        int x = points[i].rx();
+        int y = points[i].ry();
+        full.append(QPoint(x, y));
+        full.append(QPoint(x, -y));
+        full.append(QPoint(-x, y));
+        full.append(QPoint(-x, -y));
+    }
+    return full;
 }

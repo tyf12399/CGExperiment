@@ -15,6 +15,7 @@ class CGAlgorithm {
     QVector<QPoint> midPointCircle(QPoint center, int r);
     QVector<QPoint> bresenhamCircle(QPoint center, int r);
     QVector<QPoint> midPointEllipse(QPoint center, int a, int b);
+    QVector<QPoint> symmetricalOperation(QVector<QPoint> points);
 };
 
 #endif // CGALGORITHM_H
