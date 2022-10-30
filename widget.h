@@ -2,9 +2,11 @@
 #define WIDGET_H
 
 #include <QWidget>
+#include <QPushButton>
+#include <QLineEdit>
+#include <QVBoxLayout>
 #include <QPainter>
 #include <QPen>
-#include <QThread>
 
 class Widget : public QWidget {
     Q_OBJECT
@@ -13,8 +15,6 @@ class Widget : public QWidget {
     Widget(QWidget *parent = nullptr);
     ~Widget();
     void paintEvent(QPaintEvent *event);
-    void mapClear();
-    void updatePoint();
     void drawPixel(QVector<QPoint> pix, QPainter* painter);
   private:
     QVector<QPoint> points;

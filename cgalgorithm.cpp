@@ -4,6 +4,7 @@ CGAlgorithm::CGAlgorithm() {
 }
 
 QVector<QPoint> CGAlgorithm::getLinePoints(QPoint start, QPoint end, QString method) {
+    // choose the algorithm to calculate the pixels position
     QVector<QPoint> ans{};
     if (method == "dda") {
         ans = ddaLine(start, end);
@@ -17,6 +18,7 @@ QVector<QPoint> CGAlgorithm::getLinePoints(QPoint start, QPoint end, QString met
 }
 
 QVector<QPoint> CGAlgorithm::ddaLine(QPoint start, QPoint end) {
+    // use dda to draw a line
     QVector<QPoint> ans{};
     int x0 = start.x();
     int y0 = start.y();
@@ -34,15 +36,15 @@ QVector<QPoint> CGAlgorithm::ddaLine(QPoint start, QPoint end) {
     yinc = (double)dy / n;
     x = (double)x0;
     y = (double)y0;
-    ans.append(QPoint(int(x + 0.5), int(y + 0.5)));
-    for (k = 1; k <= n; k++) {
+    for (k = 0; k <= n; k++) {
+        ans.append(QPoint(int(x + 0.5), int(y + 0.5)));
         x += xinc;
         y += yinc;
-        ans.append(QPoint(int(x + 0.5), int(y + 0.5)));
     }
     return ans;
 }
 QVector<QPoint> CGAlgorithm::bresenhamLine(QPoint start, QPoint end) {
+    // use bresenham to draw a line
     QVector<QPoint> ans{};
     int x0 = start.x();
     int y0 = start.y();
@@ -54,7 +56,6 @@ QVector<QPoint> CGAlgorithm::bresenhamLine(QPoint start, QPoint end) {
     int dy = abs(y1 - y0);
     int s0 = x1 > x0 ? 1 : -1;
     int s1 = y1 > y0 ? 1 : -1;
-    ans.append(QPoint(x, y));
     bool interchange = false;
     if (dy > dx) {
         int temp = dx;
@@ -63,8 +64,8 @@ QVector<QPoint> CGAlgorithm::bresenhamLine(QPoint start, QPoint end) {
         interchange = true;
     }
     int p = 2 * dy - dx;
-    for(int i = 0; i < dx; i++) {
-
+    for(int i = 0; i <= dx; i++) {
+        ans.append(QPoint(x, y));
         if (p >= 0) {
             if (!interchange)
                 y += s1;
@@ -72,17 +73,19 @@ QVector<QPoint> CGAlgorithm::bresenhamLine(QPoint start, QPoint end) {
                 x += s0;
             p -= 2 * dx;
         }
-        if (!interchange)
+        if (!interchange) {
             x += s0;
-        else
+        } else {
             y += s1;
+        }
         p += 2 * dy;
-        ans.append(QPoint(x, y));
+
     }
     return ans;
 }
 
 QVector<QPoint> CGAlgorithm::getCirclePoints(QPoint center, int r, QString method) {
+    // choose the algorithm to calculate the pixels position
     QVector<QPoint> ans{};
     if (method == "mid-point") {
         ans = midPointCircle(center, r);
@@ -96,6 +99,7 @@ QVector<QPoint> CGAlgorithm::getCirclePoints(QPoint center, int r, QString metho
 }
 
 QVector<QPoint> CGAlgorithm::midPointCircle(QPoint center, int r) {
+    // use mid-point to draw a circle
     QVector<QPoint> ans{};
     int x = 0;
     int y = r;
@@ -112,7 +116,9 @@ QVector<QPoint> CGAlgorithm::midPointCircle(QPoint center, int r) {
         }
         x += 1;
     }
+
     ans = symmetricalOperation(ans);
+    // translation
     for(int i = 0; i < ans.length(); i++) {
         ans[i] += center;
     }
@@ -121,6 +127,7 @@ QVector<QPoint> CGAlgorithm::midPointCircle(QPoint center, int r) {
 }
 
 QVector<QPoint> CGAlgorithm::bresenhamCircle(QPoint center, int r) {
+    // use bresenham to draw a circle
     QVector<QPoint> ans{};
     int x = 0;
     int y = r;
@@ -160,6 +167,7 @@ QVector<QPoint> CGAlgorithm::bresenhamCircle(QPoint center, int r) {
     }
 
     ans = symmetricalOperation(ans);
+    // translation
     for(int i = 0; i < ans.length(); i++) {
         ans[i] += center;
     }
@@ -173,6 +181,7 @@ QVector<QPoint> CGAlgorithm::getEllipsePoints(QPoint center, int a, int b) {
 }
 
 QVector<QPoint> CGAlgorithm::midPointEllipse(QPoint center, int a, int b) {
+    // use mid-point to draw a line
     QVector<QPoint> ans{};
     int  x, y;
     float  p1, p2;
@@ -180,7 +189,8 @@ QVector<QPoint> CGAlgorithm::midPointEllipse(QPoint center, int a, int b) {
     y = b;
     p1 = b * b - a * a * b + 0.25 * a * a;
     ans.append(QPoint(x, y));
-    while (a * a * y > b * b * x) {                //第一象限内靠近y轴内点的绘制
+    // region 1
+    while (a * a * y > b * b * x) {
         if (p1 < 0) {
             p1 = p1 + 2 * b * b * (x + 1) + b * b;
             x = x + 1;
@@ -193,7 +203,8 @@ QVector<QPoint> CGAlgorithm::midPointEllipse(QPoint center, int a, int b) {
         ans.append(QPoint(x, y));
     }
     p2 = 1.0 * b * b * (x + 0.5) * (x + 0.5) + 1.0 * a * a * (y - 1) * (y - 1) - 1.0 * a * a * b * b;
-    while (y > 0) {                                                //第一象限另外一区域
+    // region 2
+    while (y > 0) {
         if (p2 > 0) {
             p2 = p2 - 2 * a * a * (y - 1) + a * a;
             y = y - 1;
@@ -207,6 +218,7 @@ QVector<QPoint> CGAlgorithm::midPointEllipse(QPoint center, int a, int b) {
     }
 
     ans = symmetricalOperation(ans);
+    // translation
     for(int i = 0; i < ans.length(); i++) {
         ans[i] += center;
     }
@@ -214,6 +226,7 @@ QVector<QPoint> CGAlgorithm::midPointEllipse(QPoint center, int a, int b) {
 }
 
 QVector<QPoint> CGAlgorithm::symmetricalOperation(QVector<QPoint> points) {
+    // calculate the points of symmetry of the pixels
     QVector<QPoint> full{};
     for(int i = 0; i < points.length(); i++) {
         int x = points[i].rx();

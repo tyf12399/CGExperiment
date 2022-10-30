@@ -4,6 +4,12 @@ Widget::Widget(QWidget *parent)
     : QWidget(parent) {
     //    set the size of widget as 600 * 600
     this->resize(600, 600);
+    this->setWindowTitle("CGExperiment");
+//    QPushButton *drawButton = new QPushButton();
+//    QLineEdit *shapeToDraw = new QLineEdit();
+//    QVBoxLayout *layout = new QVBoxLayout(this);
+//    layout->addWidget(shapeToDraw);
+//    layout->addWidget(drawButton);
 }
 
 Widget::~Widget() {
@@ -11,21 +17,31 @@ Widget::~Widget() {
 
 void Widget::paintEvent(QPaintEvent *event) {
     painter = new QPainter(this);
-    //    transform the coordinate
-    painter->translate(300, 300);
-    painter->drawLine(QPoint(-300, 0), QPoint(300, 0));
-    painter->drawLine(QPoint(0, -300), QPoint(0, 300));
-    painter->scale(1, -1);
-    painter->save();
 
     //    set the color of the axis
-    QPen *axisPen = new QPen(QColor(0, 0, 0));
+    QPen *axisPen = new QPen(QColor(0, 0, 0), 2);
+    QPen *mapPen = new QPen(QColor(50, 50, 50), 1, Qt::DotLine);
     QPen *linePen = new QPen(QColor(255, 0, 0), 2);
     QBrush *fillBrush = new QBrush(QColor(0, 0, 0, 0));
+    //    transform the coordinate and draw background
+    painter->translate(300, 300);
+    painter->scale(1, -1);
+    painter->setPen(*axisPen);
+    painter->drawLine(QPoint(-400, 0), QPoint(400, 0));
+    painter->drawLine(QPoint(0, -400), QPoint(0, 400));
+
+    painter->setPen(*mapPen);
+    for(int i = -405; i < 405; i += 10) {
+        painter->drawLine(QPoint(-400, i), QPoint(400, i));
+        painter->drawLine(QPoint(i, -400), QPoint(i, 400));
+    }
+    painter->save();
+
+
     //    set the color of pixels on the line drawn
     QBrush* pixBrush = new QBrush(QColor(0, 255, 255));
-    painter->setPen(*axisPen);
     painter->setBrush(*pixBrush);
+
 
     QString shape = "Ellipse";
 
