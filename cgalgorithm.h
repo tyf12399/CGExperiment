@@ -9,6 +9,7 @@ class CGAlgorithm {
     QVector<QPoint> getLinePoints(QPoint start, QPoint end, QString method);
     QVector<QPoint> getCirclePoints(QPoint center, int r, QString method);
     QVector<QPoint> getEllipsePoints(QPoint center, int a, int b);
+
   private:
     QVector<QPoint> ddaLine(QPoint start, QPoint end);
     QVector<QPoint> bresenhamLine(QPoint start, QPoint end);

@@ -25,24 +25,28 @@ QVector<QPoint> CGAlgorithm::ddaLine(QPoint start, QPoint end) {
     int x1 = end.x();
     int y1 = end.y();
     int dx, dy, n, k;
-    double xinc, yinc, x, y;
+    double xstep, ystep, x, y;
     dx = x1 - x0;
     dy = y1 - y0;
+    //use slope to decide direction
     if (abs(dx) > abs(dy))
         n = abs(dx);
     else
         n = abs(dy);
-    xinc = (double)dx / n;
-    yinc = (double)dy / n;
+    // calculate the step length
+    ystep = (double)dy / n;
+    xstep = (double)dx / n;
     x = (double)x0;
     y = (double)y0;
+
     for (k = 0; k <= n; k++) {
-        ans.append(QPoint(int(x + 0.5), int(y + 0.5)));
-        x += xinc;
-        y += yinc;
+        ans.append(QPoint(qRound(x), qRound(y)));
+        x += xstep;
+        y += ystep;
     }
     return ans;
 }
+
 QVector<QPoint> CGAlgorithm::bresenhamLine(QPoint start, QPoint end) {
     // use bresenham to draw a line
     QVector<QPoint> ans{};
@@ -54,32 +58,32 @@ QVector<QPoint> CGAlgorithm::bresenhamLine(QPoint start, QPoint end) {
     int y = y0;
     int dx = abs(x1 - x0);
     int dy = abs(y1 - y0);
-    int s0 = x1 > x0 ? 1 : -1;
-    int s1 = y1 > y0 ? 1 : -1;
-    bool interchange = false;
+    int stepx = x1 > x0 ? 1 : -1;
+    int stepy = y1 > y0 ? 1 : -1;
+    bool exchanged = false;
+    // choose the direction by slope
     if (dy > dx) {
         int temp = dx;
         dx = dy;
         dy = temp;
-        interchange = true;
+        exchanged = true;
     }
-    int p = 2 * dy - dx;
+    int d = 2 * dy - dx;
     for(int i = 0; i <= dx; i++) {
         ans.append(QPoint(x, y));
-        if (p >= 0) {
-            if (!interchange)
-                y += s1;
+        if (d >= 0) {
+            if (!exchanged)
+                y += stepy;
             else
-                x += s0;
-            p -= 2 * dx;
+                x += stepx;
+            d -= 2 * dx;
         }
-        if (!interchange) {
-            x += s0;
+        if (!exchanged) {
+            x += stepx;
         } else {
-            y += s1;
+            y += stepy;
         }
-        p += 2 * dy;
-
+        d += 2 * dy;
     }
     return ans;
 }
@@ -104,11 +108,13 @@ QVector<QPoint> CGAlgorithm::midPointCircle(QPoint center, int r) {
     int x = 0;
     int y = r;
     int d = 1.25 - r;
+
     while (x <= y) {
         ans.append(QPoint(x, y));
         ans.append(QPoint(y, x));
 
         if (d < 0) {
+            // update d
             d += 2 * x + 3;
         } else {
             d += 2 * (x - y) + 5;
@@ -131,25 +137,33 @@ QVector<QPoint> CGAlgorithm::bresenhamCircle(QPoint center, int r) {
     QVector<QPoint> ans{};
     int x = 0;
     int y = r;
+    // delta Di
     int delta = 2 * (1 - r);
     int delta1, delta2, direction;
     while(y >= 0) {
         ans.append(QPoint(x, y));
         if(delta < 0) {
+            // delta HD
             delta1 = 2 * (delta + y) - 1;
-            if(delta1 <= 0) {
+            if(delta1 < 0) {
+                // choose H
                 direction = 1;
             } else {
+                // choose D
                 direction = 2;
             }
         } else if (delta > 0) {
+            // delta DV
             delta2 = 2 * (delta - x) - 1;
             if(delta2 < 0) {
+                // choose D
                 direction = 2;
             } else {
+                // choose V
                 direction = 3;
             }
         } else {
+            // choose D
             direction = 2;
         }
 
@@ -184,33 +198,34 @@ QVector<QPoint> CGAlgorithm::midPointEllipse(QPoint center, int a, int b) {
     // use mid-point to draw a line
     QVector<QPoint> ans{};
     int  x, y;
-    float  p1, p2;
+    float  d1, d2;
     x = 0;
     y = b;
-    p1 = b * b - a * a * b + 0.25 * a * a;
     ans.append(QPoint(x, y));
-    // region 1
+
+    // region 2
+    d1 = b * b - a * a * b + 0.25 * a * a;
     while (a * a * y > b * b * x) {
-        if (p1 < 0) {
-            p1 = p1 + 2 * b * b * (x + 1) + b * b;
+        if (d1 < 0) {
+            d1 = d1 + 2 * b * b * (x + 1) + b * b;
             x = x + 1;
-            y = y;
         } else {
-            p1 = p1 + 2 * b * b * (x + 1) + b * b - 2 * a * a * (y - 1);
+            d1 = d1 + 2 * b * b * (x + 1) + b * b - 2 * a * a * (y - 1);
             x = x + 1;
             y = y - 1;
         }
         ans.append(QPoint(x, y));
     }
-    p2 = 1.0 * b * b * (x + 0.5) * (x + 0.5) + 1.0 * a * a * (y - 1) * (y - 1) - 1.0 * a * a * b * b;
-    // region 2
+
+    // region 1
+    d2 = 1.0 * b * b * (x + 0.5) * (x + 0.5) + 1.0 * a * a * (y - 1) * (y - 1) - 1.0 * a * a * b * b;
     while (y > 0) {
-        if (p2 > 0) {
-            p2 = p2 - 2 * a * a * (y - 1) + a * a;
+        if (d2 > 0) {
+            d2 = d2 - 2 * a * a * (y - 1) + a * a;
             y = y - 1;
             x = x;
         } else {
-            p2 = p2 - 2 * a * a * (y - 1) + a * a + 2 * b * b * (x + 1);
+            d2 = d2 - 2 * a * a * (y - 1) + a * a + 2 * b * b * (x + 1);
             y = y - 1;
             x = x + 1;
         }
@@ -226,7 +241,7 @@ QVector<QPoint> CGAlgorithm::midPointEllipse(QPoint center, int a, int b) {
 }
 
 QVector<QPoint> CGAlgorithm::symmetricalOperation(QVector<QPoint> points) {
-    // calculate the points of symmetry of the pixels
+    // four-way symmtrical operation
     QVector<QPoint> full{};
     for(int i = 0; i < points.length(); i++) {
         int x = points[i].rx();
