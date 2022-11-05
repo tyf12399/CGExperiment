@@ -240,6 +240,46 @@ QVector<QPoint> CGAlgorithm::midPointEllipse(QPoint center, int a, int b) {
     return ans;
 }
 
+QVector<QPoint> CGAlgorithm::getPolygonPoints(QVector<QVector<QPoint>> verticesList, QPoint seed, QString method) {
+    QVector<QPoint> innerPoints = {};
+    QVector<QPoint> edges = edgeCal(verticesList);
+    if(method == "scanline") {
+        innerPoints = scanLineFill(edges, seed);
+    } else if(method == "flood") {
+        floodFill4(&edges, seed);
+        return edges;
+    }
+    return innerPoints;
+}
+
+QVector<QPoint> CGAlgorithm::edgeCal(QVector<QVector<QPoint>> verticesList) {
+    QVector<QPoint> edge = {};
+    for(int i = 0; i < verticesList.length(); i++) {
+        QVector<QPoint> vertices = verticesList[i];
+        int len = vertices.length();
+        for (int j = 1; j < len; j++) {
+            edge.append(bresenhamLine(vertices[j - 1], vertices[j]));
+        }
+        edge.append(bresenhamLine(vertices[len - 1], vertices[0]));
+    }
+    return edge;
+}
+
+QVector<QPoint> CGAlgorithm::scanLineFill(QVector<QPoint> edges, QPoint seed) {
+    QVector<QPoint> innerPoints = {};
+    return innerPoints;
+}
+
+void CGAlgorithm::floodFill4(QVector<QPoint> *edges, QPoint seed) {
+    if(!edges->contains(seed)) {
+        edges->append(seed);
+        floodFill4(edges, QPoint(seed.rx() + 1, seed.ry()));
+        floodFill4(edges, QPoint(seed.rx() - 1, seed.ry()));
+        floodFill4(edges, QPoint(seed.rx(), seed.ry() + 1));
+        floodFill4(edges, QPoint(seed.rx(), seed.ry() - 1));
+    }
+}
+
 QVector<QPoint> CGAlgorithm::symmetricalOperation(QVector<QPoint> points) {
     // four-way symmtrical operation
     QVector<QPoint> full{};
