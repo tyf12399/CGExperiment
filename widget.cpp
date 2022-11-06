@@ -76,8 +76,6 @@ void Widget::paintEvent(QPaintEvent *event) {
         painter->drawLine(QPoint(-300, i), QPoint(300, i));
         painter->drawLine(QPoint(i, -300), QPoint(i, 300));
     }
-    painter->save();
-
 
     //    set the color of pixels on the line drawn
     QBrush* pixBrush = new QBrush(QColor(0, 255, 255));
@@ -121,16 +119,8 @@ void Widget::paintEvent(QPaintEvent *event) {
             painter->drawEllipse(*center * 10, a * 10, b * 10);
         } else if(shape == "Polygon") {
             QVector<QVector<QPoint>> verticesList = {};
-//            for (int i = 1; i <= 2; ++i) {
-//                QVector<QPoint> vertices = {};
-//                vertices.append(QPoint(9 * i, 10 * i));
-//                vertices.append(QPoint(10 * i, -10 * i));
-//                vertices.append(QPoint(-5 * i, -5 * i));
-//                vertices.append(QPoint(-10 * i, 10 * i));
-//                verticesList.append(vertices);
-//            }
             textParser(args, verticesList);
-            points = cal->getPolygonPoints(verticesList, QPoint(15, 15), method);
+            points = cal->getPolygonPoints(verticesList, method);
             drawPixel(points, painter);
         }
 
@@ -171,13 +161,19 @@ void Widget::textParser(QString rawText, QPoint &center, int &a, int &b) {
     b = list[3].toInt();
 }
 void Widget::textParser(QString rawText, QVector<QVector<QPoint>> &verticesList) {
-
-    for (int i = 1; i <= 2; ++i) {
+    rawText.replace("{", "");
+    rawText.replace("(", "");
+    rawText.replace("\n", "");
+    rawText.replace(")", "");
+//    qDebug() << rawText;
+    QStringList list = rawText.split("}");
+    for(int i = 0; i < list.length() - 1; i++) {
+        QStringList vl = list[i].split(",");
         QVector<QPoint> vertices = {};
-        vertices.append(QPoint(9 * i, 10 * i));
-        vertices.append(QPoint(10 * i, -10 * i));
-        vertices.append(QPoint(-5 * i, -5 * i));
-        vertices.append(QPoint(-10 * i, 10 * i));
+        for (int j = 0; j < vl.length(); j += 2) {
+            qDebug() << "x:" << vl[j] << "y:" << vl[j + 1];
+            vertices.append(QPoint(vl[j].toInt(), vl[j + 1].toInt()));
+        }
         verticesList.append(vertices);
     }
 }

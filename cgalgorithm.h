@@ -10,8 +10,7 @@ class CGAlgorithm {
     QVector<QPoint> getLinePoints(QPoint start, QPoint end, QString method);
     QVector<QPoint> getCirclePoints(QPoint center, int r, QString method);
     QVector<QPoint> getEllipsePoints(QPoint center, int a, int b);
-    QVector<QPoint> getPolygonPoints(QVector<QVector<QPoint>> verticesList, QPoint seed, QString method);
-    QVector<QPoint> edgeCal(QVector<QVector<QPoint>> verticesList);
+    QVector<QPoint> getPolygonPoints(QVector<QVector<QPoint>> verticesList, QString method);
 
   private:
     QVector<QPoint> ddaLine(QPoint start, QPoint end);
@@ -22,7 +21,9 @@ class CGAlgorithm {
     QVector<QPoint> scanLineFill(QVector<QPoint> edges, QPoint seed);
     void floodFill4(QVector<QPoint> *edges, QPoint seed);
     QVector<QPoint> symmetricalOperation(QVector<QPoint> points);
-    QPoint seedInital(QVector<QPoint> edges);
+    QVector<QPoint> edgeCal(QVector<QVector<QPoint>> verticesList);
+    QPoint seedInitial(QVector<QPoint> edges);
+    bool isInner(QPoint p, QVector<QPoint> edges);
 };
 
 #endif // CGALGORITHM_H

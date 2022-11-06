@@ -240,9 +240,10 @@ QVector<QPoint> CGAlgorithm::midPointEllipse(QPoint center, int a, int b) {
     return ans;
 }
 
-QVector<QPoint> CGAlgorithm::getPolygonPoints(QVector<QVector<QPoint>> verticesList, QPoint seed, QString method) {
+QVector<QPoint> CGAlgorithm::getPolygonPoints(QVector<QVector<QPoint>> verticesList, QString method) {
     QVector<QPoint> innerPoints = {};
     QVector<QPoint> edges = edgeCal(verticesList);
+    QPoint seed = seedInitial(edges);
     if(method == "scanline") {
         innerPoints = scanLineFill(edges, seed);
     } else if(method == "flood") {
@@ -253,6 +254,7 @@ QVector<QPoint> CGAlgorithm::getPolygonPoints(QVector<QVector<QPoint>> verticesL
 }
 
 QVector<QPoint> CGAlgorithm::edgeCal(QVector<QVector<QPoint>> verticesList) {
+    // calculate the points on the egde
     QVector<QPoint> edge = {};
     for(int i = 0; i < verticesList.length(); i++) {
         QVector<QPoint> vertices = verticesList[i];
@@ -292,4 +294,81 @@ QVector<QPoint> CGAlgorithm::symmetricalOperation(QVector<QPoint> points) {
         full.append(QPoint(-x, -y));
     }
     return full;
+}
+
+QPoint CGAlgorithm::seedInitial(QVector<QPoint> edges) {
+    // find a point in the polygon as seed
+    QVector<QPoint> offsets = {};
+    offsets.append(QPoint(2, 0));
+    offsets.append(QPoint(2, 2));
+    offsets.append(QPoint(2, -2));
+    offsets.append(QPoint(-2, 0));
+    offsets.append(QPoint(-2, 2));
+    offsets.append(QPoint(-2, -2));
+    offsets.append(QPoint(0, 2));
+    offsets.append(QPoint(0, -2));
+    for (int i = 0; i < edges.length(); ++i) {
+        for(int j = 0; j < 8; ++j) {
+            if(isInner(edges[i] + offsets[j], edges)) {
+                return edges[i] + offsets[j];
+            }
+        }
+    }
+    return QPoint(0, 0);
+}
+
+bool CGAlgorithm::isInner(QPoint p, QVector<QPoint> edges) {
+    //check if the point in the polygon, and it's the necessary condition
+
+    QPoint rstep(1, 0);
+    QPoint lstep(-1, 0);
+    QPoint ustep(0, 1);
+    QPoint dstep(0, -1);
+
+    QPoint start = p;
+    int count = 0;
+    while (start.rx() <= 30) {
+        if(edges.contains(start)) {
+            count ++;
+        }
+        start += rstep;
+    }
+    if(count % 2 == 0) {
+        return false;
+    }
+
+    start = p;
+    count = 0;
+    while (start.rx() >= -30) {
+        if(edges.contains(start)) {
+            count ++;
+        }
+        start += lstep;
+    }
+    if(count % 2 == 0) {
+        return false;
+    }
+    start = p;
+    count = 0;
+    while (start.ry() >= -30) {
+        if(edges.contains(start)) {
+            count ++;
+        }
+        start += dstep;
+    }
+    if(count % 2 == 0) {
+        return false;
+    }
+    start = p;
+    count = 0;
+    while (start.ry() <= 30) {
+        if(edges.contains(start)) {
+            count ++;
+        }
+        start += ustep;
+    }
+    if(count % 2 == 0) {
+        return false;
+    }
+    return true;
 }
